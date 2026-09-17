@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Predicciones Deportivas</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🏆 Predicciones Deportivas</h1>
+    <p class="subtitle">Sistema basado en datos reales y análisis de forma reciente</p>
+  </header>
+
+  <main>
+    <section class="selector-panel">
+      <div class="team-column" id="col-A">
+        <h2>Equipo A</h2>
+        <div class="search-box">
+          <input type="text" id="search-A" placeholder="Buscar equipo (ej. Barcelona)" />
+          <button onclick="buscarEquipo('A')">Buscar</button>
+        </div>
+        <ul class="results-list" id="results-A"></ul>
+        <div class="selected-team" id="selected-A"></div>
+      </div>
+
+      <div class="vs-column">
+        <span class="vs">VS</span>
+        <div class="home-selector">
+          <label>¿Quién juega de local?</label>
+          <select id="homeTeam">
+            <option value="none">Cancha neutral</option>
+            <option value="A">Equipo A</option>
+            <option value="B">Equipo B</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="team-column" id="col-B">
+        <h2>Equipo B</h2>
+        <div class="search-box">
+          <input type="text" id="search-B" placeholder="Buscar equipo (ej. Real Madrid)" />
+          <button onclick="buscarEquipo('B')">Buscar</button>
+        </div>
+        <ul class="results-list" id="results-B"></ul>
+        <div class="selected-team" id="selected-B"></div>
+      </div>
+    </section>
+
+    <div class="predict-action">
+      <button id="btn-predecir" onclick="predecir()" disabled>Generar predicción</button>
+    </div>
+
+    <section id="resultado" class="resultado hidden"></section>
+
+    <section class="info-algoritmo">
+      <h3>ℹ️ ¿Cómo se calcula la predicción?</h3>
+      <p>
+        Para cada equipo se consultan sus últimos 5 partidos reales (API: TheSportsDB).
+        Se calcula el <strong>% de victorias</strong> y una <strong>forma reciente ponderada</strong>
+        (los partidos más recientes influyen más que los antiguos). Si un equipo juega de local,
+        recibe un bono adicional. Con esos puntajes se normalizan las probabilidades de cada equipo.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Proyecto universitario de Sistemas — Datos en tiempo real vía API pública</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
