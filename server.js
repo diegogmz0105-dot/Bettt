@@ -1,4 +1,4 @@
-import express from 'express';
+    import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -13,15 +13,39 @@ const SPORTSDB_BASE = 'https://www.thesportsdb.com/api/v1/json/3';
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+// Muchos clubes (sobre todo latinoamericanos) están registrados con un prefijo
+// de su nombre oficial (ej. "CR Flamengo", "SE Palmeiras", "CA Boca Juniors").
+// Si la búsqueda tal cual no encuentra nada, probamos con estos prefijos.
+const PREFIJOS_COMUNES = ['CR', 'SE', 'CA', 'CD', 'CF', 'SC', 'EC', 'AA', 'AC', 'FC'];
+
+async function buscarEnAPI(termino) {
+  const r = await fetch(`${SPORTSDB_BASE}/searchteams.php?t=${encodeURIComponent(termino)}`);
+  const data = await r.json();
+  return data.teams || [];
+}
+
 app.get('/api/team/search', async (req, res) => {
   const { name } = req.query;
   if (!name) {
     return res.status(400).json({ error: 'Falta el parámetro "name"' });
   }
   try {
-    const r = await fetch(`${SPORTSDB_BASE}/searchteams.php?t=${encodeURIComponent(name)}`);
-    const data = await r.json();
-    const equipos = (data.teams || []).map((t) => ({
+    let teams = await buscarEnAPI(name);
+
+    if (!teams.length) {
+      const intentos = PREFIJOS_COMUNES.map((prefijo) => buscarEnAPI(`${prefijo} ${name}`));
+      const resultados = await Promise.all(intentos);
+      const encontrados = resultados.flat();
+
+      const vistos = new Set();
+      teams = encontrados.filter((t) => {
+        if (vistos.has(t.idTeam)) return false;
+        vistos.add(t.idTeam);
+        return true;
+      });
+    }
+
+    const equipos = teams.map((t) => ({
       id: t.idTeam,
       nombre: t.strTeam,
       deporte: t.strSport,
